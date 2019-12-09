@@ -25,7 +25,6 @@ class ViewModel: ObservableObject {
                 //TODO: - Handle Error
                 print(error)
             }) { (jobs) in
-                print(jobs)
                 self.jobs = jobs
         }
     }
