@@ -22,6 +22,7 @@ class ViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
             .sink(receiveCompletion: { (error) in
+                //TODO: - Handle Error
                 print(error)
             }) { (jobs) in
                 print(jobs)

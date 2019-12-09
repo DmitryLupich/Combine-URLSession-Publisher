@@ -25,7 +25,8 @@ extension Publishers {
         
         func receive<S: Subscriber>(subscriber: S) where
             DataPublisher.Failure == S.Failure, DataPublisher.Output == S.Input {
-                let subscription = DataSubscription(request: urlRequest, subscriber: subscriber)
+                let subscription = DataSubscription(request: urlRequest,
+                                                    subscriber: subscriber)
                 subscriber.receive(subscription: subscription)
         }
     }
@@ -36,6 +37,7 @@ extension Publishers {
 extension Publishers {
     
     class DataSubscription<S: Subscriber>: Subscription where S.Input == Data, S.Failure == Error {
+        private let session = URLSession.shared
         private let request: URLRequest
         private let subscriber: S
         
@@ -45,30 +47,21 @@ extension Publishers {
             sendRequest()
         }
         
-        func request(_ demand: Subscribers.Demand) { }
+        func request(_ demand: Subscribers.Demand) {
+            //TODO: - Optionaly Adjust The Demand
+        }
         
-        func cancel() { }
+        func cancel() {
+            //TODO: - Cancel Subscription
+        }
         
         private func sendRequest() {
-            URLSession
-                .shared
-                .dataTask(with: request) { (data, _, error) in
-                    _ = data.map(self.subscriber.receive)
-                    error.map { self.subscriber
-                        .receive(completion: Subscribers.Completion.failure($0))
-                    }
+            session.dataTask(with: request) { (data, _, error) in
+                _ = data.map(self.subscriber.receive)
+                _ = error.map { self.subscriber
+                    .receive(completion: Subscribers.Completion.failure($0))
+                }
             }.resume()
         }
     }
 }
-
-//let session = URLSession.shared
-//let url = URL(string: "https://www.google.com")!
-//let request = URLRequest(url: url)
-//let response = session.rxResponse(for: request)
-//
-//response.sink(receiveCompletion: { (error) in
-//    print("Got error")
-//}) { (data) in
-//    print("Got data")
-//}
