@@ -10,6 +10,7 @@ import Foundation
 import Combine
 
 class ViewModel: ObservableObject {
+    private var cancellBag = Set<AnyCancellable>()
     private let decoder = JSONDecoder()
     private let session = URLSession.shared
     private let url = URL(string: "https://jobs.github.com/positions.json?description=swift")!
@@ -17,7 +18,7 @@ class ViewModel: ObservableObject {
 
     func load() {
         let request = URLRequest(url: url)
-        _ = session.dataResponse(for: request)
+        session.dataResponse(for: request)
             .decode(type: [JobModel].self, decoder: decoder)
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
@@ -26,6 +27,6 @@ class ViewModel: ObservableObject {
                 print(error)
             }) { (jobs) in
                 self.jobs = jobs
-        }
+        }.store(in: &cancellBag)
     }
 }
